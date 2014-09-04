@@ -1,11 +1,13 @@
 package main
 
 import (
+    "bytes"
 	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+    "fmt"
 
 	"github.com/docopt/docopt-go"
 	"github.com/gorilla/mux"
@@ -65,7 +67,7 @@ Options:
 	fileServer := http.StripPrefix("/static/", http.FileServer(http.Dir("static")))
 	http.Handle("/static/", fileServer)
 
-	router.Handle("/articles/{year:[0-9]{4}}/{month:0?[1-9]|1[012]}/{title:[a-z0-9]+}",
+	router.Handle("/articles/{year:[0-9]{4}}/{month:0?[1-9]|1[012]}/{title:[A-Za-z0-9-]+}",
 		makeHandler(&action.ViewArticle{}, twigo)).
 		Methods("GET").Name("ViewArticle")
 	router.Handle("/pages/{title:[a-z0-9]+}",
@@ -103,6 +105,20 @@ func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
 				"safeHtml": func(text string) template.HTML {
 					return template.HTML(text)
 				},
+                "partial":func(name string, ctx interface{}) template.HTML {
+                    name = context.App.Home+"/templates/"+name
+                    t, err := template.New(name).ParseFiles(name);
+                    if err != nil {
+                        return ""
+                    }
+                    output := bytes.Buffer{}
+                    err = t.Execute(&output, ctx)
+                    if err != nil {
+                        return ""
+                    }
+                        fmt.Println(output)
+                    return template.HTML(output.String())
+                },
                 "buildUrl": func(name string, args ...string) string {
                     route := context.App.Router.Get(name)
                     if route == nil {

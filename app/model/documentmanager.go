@@ -12,6 +12,8 @@ import (
 )
 
 type Document struct {
+	Slug    string
+	Created map[string]string
 	Meta    map[string]string
 	Preview string
 	Content string
@@ -35,7 +37,22 @@ func (dm *DocumentManager) LoadDocument(name string) (*Document, error) {
 		return nil, err
 	}
 
-	return parseInput(input)
+	document, err := parseInput(input)
+
+	if err != nil {
+		return nil, err
+	}
+
+	date, fileName := parseFileName(name)
+	if date != nil {
+		for _, t := range []string{"year", "month", "day"} {
+			document.Created[strings.Title(t)] = strconv.Itoa(date[t])
+		}
+	}
+
+    document.Slug = fileName
+
+	return document, nil
 }
 
 func (dm *DocumentManager) FindDocument(name string, year string, month string) (*Document, error) {
@@ -90,7 +107,7 @@ func (dm *DocumentManager) ListDocuments() ([]*Document, error) {
 		return nil, err
 	}
 
-    var documents []*Document
+	var documents []*Document
 	for _, f := range files {
 		if strings.HasPrefix(f.Name(), ".") {
 			continue
@@ -101,10 +118,10 @@ func (dm *DocumentManager) ListDocuments() ([]*Document, error) {
 		}
 
 		fullName := strings.TrimSuffix(f.Name(), ".markdown")
-        document, err := dm.LoadDocument(fullName)
-        if err != nil {
-            continue
-        }
+		document, err := dm.LoadDocument(fullName)
+		if err != nil {
+			continue
+		}
 
 		documents = append(documents, document)
 	}
@@ -155,7 +172,12 @@ func parseInput(input []byte) (*Document, error) {
 		return nil, err
 	}
 
-	return &Document{Meta: meta, Preview: string(previewHtml), Content: string(contentHtml)}, nil
+	return &Document{
+		Slug:    "",
+		Created: map[string]string{"Year": "", "Month": "", "Day": ""},
+		Meta:    meta,
+		Preview: string(previewHtml),
+		Content: string(contentHtml)}, nil
 }
 
 func splitMetaAndContent(input []byte) ([]byte, []byte) {
