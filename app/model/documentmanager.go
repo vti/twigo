@@ -3,7 +3,10 @@ package model
 import (
 	"io/ioutil"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/russross/blackfriday"
 )
@@ -33,6 +36,80 @@ func (dm *DocumentManager) LoadDocument(name string) (*Document, error) {
 	}
 
 	return parseInput(input)
+}
+
+func (dm *DocumentManager) FindDocument(name string, year string, month string) (*Document, error) {
+	files, err := ioutil.ReadDir(dm.Root)
+	if err != nil {
+		return nil, err
+	}
+
+	yearInt, err := strconv.Atoi(year)
+	if err != nil {
+		return nil, err
+	}
+	monthInt, err := strconv.Atoi(month)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, f := range files {
+		if strings.HasPrefix(f.Name(), ".") {
+			continue
+		}
+
+		if !strings.HasSuffix(f.Name(), name+".markdown") {
+			continue
+		}
+
+		date, fileName := parseFileName(f.Name())
+		fileName = strings.TrimSuffix(fileName, ".markdown")
+
+		if fileName != name {
+			continue
+		}
+
+		if yearInt > 0 && monthInt > 0 {
+			if date == nil {
+				continue
+			} else if yearInt != date["year"] || monthInt != date["month"] {
+				continue
+			}
+		}
+
+		fullName := strings.TrimSuffix(f.Name(), ".markdown")
+		return dm.LoadDocument(fullName)
+	}
+
+	return nil, nil
+}
+
+func parseFileName(input string) (map[string]int, string) {
+	dateRe := regexp.MustCompile("^[0-9]{8}-")
+
+	if dateRe.MatchString(input) {
+		parts := strings.SplitN(input, "-", 2)
+
+		date, _ := parseDate(parts[0])
+
+		if date != nil {
+			return date, parts[1]
+		}
+	}
+
+	return nil, input
+}
+
+func parseDate(input string) (map[string]int, error) {
+	t, err := time.Parse("20060102", input)
+	if err != nil {
+		return nil, err
+	}
+
+	date := map[string]int{"year": t.Year(),
+		"month": int(t.Month()),
+		"day":   t.Day()}
+	return date, nil
 }
 
 func parseInput(input []byte) (*Document, error) {
@@ -69,8 +146,8 @@ func splitPreviewAndContent(input []byte) ([]byte, []byte) {
 	var content []byte
 
 	if len(retval) < 2 {
-		preview = []byte(retval[0])
-		content = preview
+		preview = nil
+		content = []byte(retval[0])
 	} else {
 		preview = []byte(retval[0])
 		content = []byte(retval[1])

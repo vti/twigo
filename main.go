@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -64,8 +65,12 @@ Options:
 	fileServer := http.StripPrefix("/static/", http.FileServer(http.Dir("static")))
 	http.Handle("/static/", fileServer)
 
-	router.Handle("/pages/{title:[a-z0-9]+}", makeHandler(&action.ViewPage{}, twigo)).
-		Methods("GET").Name("view_page")
+	router.Handle("/articles/{year:[0-9]{4}}/{month:0?[1-9]|1[012]}/{title:[a-z0-9]+}",
+		makeHandler(&action.ViewArticle{}, twigo)).
+		Methods("GET")
+	router.Handle("/pages/{title:[a-z0-9]+}",
+		makeHandler(&action.ViewPage{}, twigo)).
+		Methods("GET")
 
 	http.Handle("/", router)
 
@@ -83,5 +88,21 @@ func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
 
 		action.SetContext(context)
 		action.Execute(w, r)
+
+		if context.TemplateName != "" {
+			var templateFiles []string
+			for _, file := range context.TemplateFiles {
+				templateFiles = append(templateFiles, context.App.Home+"/templates/"+file)
+			}
+
+			t, err := template.New(context.TemplateName).ParseFiles(templateFiles...)
+			if err != nil {
+				log.Print(err)
+				http.NotFound(w, r)
+				return
+			}
+
+			t.Execute(w, context.TemplateVars)
+		}
 	}
 }

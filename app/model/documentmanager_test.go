@@ -29,7 +29,7 @@ func TestSplitPreviewAndContent(t *testing.T) {
 func TestSplitPreviewAndContentWithoutPreview(t *testing.T) {
 	preview, content := splitPreviewAndContent([]byte("foo\nbar"))
 
-	assert.Equal(t, "foo\nbar", string(preview))
+	assert.Equal(t, "", string(preview))
 	assert.Equal(t, "foo\nbar", string(content))
 }
 
@@ -47,4 +47,19 @@ func TestParseInput(t *testing.T) {
 	assert.Equal(t, "baz", document.Meta["Bar"])
 	assert.Equal(t, "<p>preview</p>\n", string(document.Preview))
 	assert.Equal(t, "<p>content</p>\n", string(document.Content))
+}
+
+func TestParseDate(t *testing.T) {
+	date, _ := parseDate("20111213")
+
+	assert.Equal(t, 2011, date["year"])
+	assert.Equal(t, 12, date["month"])
+	assert.Equal(t, 13, date["day"])
+}
+
+func TestParseInvalidDate(t *testing.T) {
+	date, err := parseDate("99999999-hello.there")
+
+	assert.Nil(t, date)
+	assert.NotNil(t, err)
 }
