@@ -13,8 +13,8 @@ import (
 
 type Document struct {
 	Meta    map[string]string
-	Preview []byte
-	Content []byte
+	Preview string
+	Content string
 }
 
 type DocumentManager struct {
@@ -84,6 +84,34 @@ func (dm *DocumentManager) FindDocument(name string, year string, month string) 
 	return nil, nil
 }
 
+func (dm *DocumentManager) ListDocuments() ([]*Document, error) {
+	files, err := ioutil.ReadDir(dm.Root)
+	if err != nil {
+		return nil, err
+	}
+
+    var documents []*Document
+	for _, f := range files {
+		if strings.HasPrefix(f.Name(), ".") {
+			continue
+		}
+
+		if !strings.HasSuffix(f.Name(), ".markdown") {
+			continue
+		}
+
+		fullName := strings.TrimSuffix(f.Name(), ".markdown")
+        document, err := dm.LoadDocument(fullName)
+        if err != nil {
+            continue
+        }
+
+		documents = append(documents, document)
+	}
+
+	return documents, nil
+}
+
 func parseFileName(input string) (map[string]int, string) {
 	dateRe := regexp.MustCompile("^[0-9]{8}-")
 
@@ -127,7 +155,7 @@ func parseInput(input []byte) (*Document, error) {
 		return nil, err
 	}
 
-	return &Document{Meta: meta, Preview: previewHtml, Content: contentHtml}, nil
+	return &Document{Meta: meta, Preview: string(previewHtml), Content: string(contentHtml)}, nil
 }
 
 func splitMetaAndContent(input []byte) ([]byte, []byte) {

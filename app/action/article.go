@@ -1,7 +1,6 @@
 package action
 
 import (
-	"html/template"
 	"net/http"
 
 	"github.com/vti/twigo/app"
@@ -43,11 +42,7 @@ func (action *ViewArticle) Execute(w http.ResponseWriter, r *http.Request) {
 
 	vars := map[string]interface{}{
 		"Conf": action.Context.App.Conf,
-		"Document": map[string]interface{}{
-			"Meta":    document.Meta,
-			"Preview": template.HTML(document.Preview),
-			"Content": template.HTML(document.Content),
-		},
+        "Document":document,
 	}
 	action.Context.SetTemplateVars(vars)
 }

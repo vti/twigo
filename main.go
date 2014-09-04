@@ -67,9 +67,12 @@ Options:
 
 	router.Handle("/articles/{year:[0-9]{4}}/{month:0?[1-9]|1[012]}/{title:[a-z0-9]+}",
 		makeHandler(&action.ViewArticle{}, twigo)).
-		Methods("GET")
+		Methods("GET").Name("ViewArticle")
 	router.Handle("/pages/{title:[a-z0-9]+}",
 		makeHandler(&action.ViewPage{}, twigo)).
+		Methods("GET")
+	router.Handle("/",
+		makeHandler(&action.ListArticles{}, twigo)).
 		Methods("GET")
 
 	http.Handle("/", router)
@@ -95,7 +98,23 @@ func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
 				templateFiles = append(templateFiles, context.App.Home+"/templates/"+file)
 			}
 
-			t, err := template.New(context.TemplateName).ParseFiles(templateFiles...)
+			t, err := template.New(context.TemplateName).
+				Funcs(template.FuncMap{
+				"safeHtml": func(text string) template.HTML {
+					return template.HTML(text)
+				},
+                "buildUrl": func(name string, args ...string) string {
+                    route := context.App.Router.Get(name)
+                    if route == nil {
+                        return ""
+                    }
+                    url, err := route.URL(args...)
+                    if err != nil {
+                        return ""
+                    }
+                    return url.String()
+                }}).
+				ParseFiles(templateFiles...)
 			if err != nil {
 				log.Print(err)
 				http.NotFound(w, r)
