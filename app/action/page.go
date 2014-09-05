@@ -1,7 +1,6 @@
 package action
 
 import (
-	"html/template"
 	"net/http"
 
 	"github.com/vti/twigo/app"
@@ -21,8 +20,12 @@ func (action *ViewPage) Execute(w http.ResponseWriter, r *http.Request) {
 	title := action.Context.Capture("title")
 
 	dm := &model.DocumentManager{Root: home + "/pages/"}
-	document, err := dm.LoadDocument(title)
+	document, err := dm.LoadDocumentBySlug(title)
 	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	if document == nil {
 		http.NotFound(w, r)
 		return
 	}
@@ -31,11 +34,8 @@ func (action *ViewPage) Execute(w http.ResponseWriter, r *http.Request) {
 	action.Context.SetTemplateFiles([]string{"layouts/html.tpl", "page.tpl"})
 
 	vars := map[string]interface{}{
-		"Conf": action.Context.App.Conf,
-		"Document": map[string]interface{}{
-			"Meta":    document.Meta,
-			"Content": template.HTML(document.Content),
-		},
+		"Conf":     action.Context.App.Conf,
+		"Document": document,
 	}
 
 	action.Context.SetTemplateVars(vars)

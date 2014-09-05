@@ -23,7 +23,7 @@ func (action *ViewArticle) Execute(w http.ResponseWriter, r *http.Request) {
 	month := action.Context.Capture("month")
 
 	dm := &model.DocumentManager{Root: home + "/articles/"}
-	document, err := dm.FindDocument(title, year, month)
+	document, err := dm.LoadDocumentBySlugAndDate(title, year, month)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -43,6 +43,8 @@ func (action *ViewArticle) Execute(w http.ResponseWriter, r *http.Request) {
 	vars := map[string]interface{}{
 		"Conf": action.Context.App.Conf,
         "Document":document,
+        "NewerDocument":dm.NewerDocument(document),
+        "OlderDocument":dm.OlderDocument(document),
 	}
 	action.Context.SetTemplateVars(vars)
 }

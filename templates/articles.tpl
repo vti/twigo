@@ -27,6 +27,20 @@
     </div>
 {{end}}
 
-{>index-pager}
+{{if or .PrevPageOffset .NextPageOffset}}
+    <div id="pager">
+        {{if .PrevPageOffset}}
+        <a href="/?timestamp={{.PrevPageOffset}}"><span class="arrow">&larr; </span>Later</a>
+        {{else}}
+        <span class="arrow">&larr; </span>Later
+        {{end}}
+
+        {{if .NextPageOffset}}
+        <a href="/?timestamp={{.NextPageOffset}}">Earlier<span class="arrow"> &rarr;</span></a>
+        {{else}}
+        Earlier<span class="arrow"> &rarr;</span>
+        {{end}}
+    </div>
+{{end}}
 
 {{end}}

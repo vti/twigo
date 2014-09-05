@@ -1,9 +1,12 @@
 package model
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -12,6 +15,7 @@ import (
 )
 
 type Document struct {
+	Path    string
 	Slug    string
 	Created map[string]string
 	Meta    map[string]string
@@ -23,8 +27,155 @@ type DocumentManager struct {
 	Root string
 }
 
-func (dm *DocumentManager) LoadDocument(name string) (*Document, error) {
-	path := dm.Root + name + ".markdown"
+func (dm *DocumentManager) LoadDocumentBySlug(slug string) (*Document, error) {
+	documents, err := dm.parseDocuments()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, document := range documents {
+		if document.Slug == slug {
+			return document, nil
+		}
+	}
+
+	return nil, nil
+}
+
+func (dm *DocumentManager) LoadDocumentBySlugAndDate(slug string, year string, month string) (*Document, error) {
+	documents, err := dm.parseDocuments()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, document := range documents {
+		if document.Slug != slug {
+			continue
+		}
+
+		if year == document.Created["Year"] &&
+			fmt.Sprintf("%02d", month) == fmt.Sprintf("%02d", document.Created["Month"]) {
+			return document, nil
+		}
+	}
+
+	return nil, nil
+}
+
+func (dm *DocumentManager) LoadDocuments(limit int, offset string) ([]*Document, error) {
+	documents, err := dm.parseDocuments()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(offset) > 0 {
+		var index int
+		for i, document := range documents {
+			currentTimestamp := document.Created["Year"] +
+				document.Created["Month"] +
+				document.Created["Day"]
+			if currentTimestamp > offset {
+				continue
+			}
+
+			index = i
+			break
+		}
+
+		if index > 0 {
+			documents = documents[index:]
+		}
+	}
+
+	if limit > 0 && limit < len(documents) {
+		documents = documents[0:limit]
+	}
+
+	return documents, nil
+}
+
+func (dm *DocumentManager) NextPageOffset(limit int, offset string) string {
+	if limit <= 0 {
+		return ""
+	}
+
+	documents, _ := dm.LoadDocuments(limit+1, offset)
+	if len(documents) != limit+1 {
+		return ""
+	}
+
+	last := documents[len(documents)-1]
+	return last.Created["Year"] + last.Created["Month"] + last.Created["Day"]
+}
+
+func (dm *DocumentManager) PrevPageOffset(limit int, offset string) string {
+	if limit <= 0 || len(offset) == 0 {
+		return ""
+	}
+
+	documents, _ := dm.LoadDocuments(0, "")
+	var index int
+	for i, document := range documents {
+		currentTimestamp := document.Created["Year"] +
+			document.Created["Month"] + document.Created["Day"]
+
+		if currentTimestamp <= offset {
+			index = i
+			break
+		}
+	}
+
+	if index == 0 {
+		return ""
+	}
+
+	index = index - limit
+	if index < 0 {
+		index = 0
+	}
+
+	offsetted := documents[index]
+	return offsetted.Created["Year"] + offsetted.Created["Month"] + offsetted.Created["Day"]
+}
+
+func (dm *DocumentManager) NewerDocument(document *Document) *Document {
+	documents, _ := dm.LoadDocuments(0, "")
+
+    var index int
+    for i, d := range documents {
+        if document.Path == d.Path {
+            index = i
+            break
+        }
+    }
+
+    if index == 0 {
+        return nil
+    }
+
+    return documents[index - 1]
+}
+
+func (dm *DocumentManager) OlderDocument(document *Document) *Document {
+	documents, _ := dm.LoadDocuments(0, "")
+
+    var index int
+    for i, d := range documents {
+        index = i
+        if document.Path == d.Path {
+            break
+        }
+    }
+
+    if index + 1 >= len(documents) {
+        return nil
+    }
+
+    return documents[index + 1]
+}
+
+func (dm *DocumentManager) parseDocument(name string) (*Document, error) {
+	path := dm.Root + name
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -37,7 +188,7 @@ func (dm *DocumentManager) LoadDocument(name string) (*Document, error) {
 		return nil, err
 	}
 
-	document, err := parseInput(input)
+	document, err := parseContent(input)
 
 	if err != nil {
 		return nil, err
@@ -46,68 +197,51 @@ func (dm *DocumentManager) LoadDocument(name string) (*Document, error) {
 	date, fileName := parseFileName(name)
 	if date != nil {
 		for _, t := range []string{"year", "month", "day"} {
-			document.Created[strings.Title(t)] = strconv.Itoa(date[t])
+			value := strconv.Itoa(date[t])
+			if len(value) < 2 {
+				value = "0" + value
+			}
+			document.Created[strings.Title(t)] = value
 		}
 	}
 
-    document.Slug = fileName
+	ext := filepath.Ext(fileName)
+	slug := strings.TrimSuffix(fileName, ext)
+
+	document.Path = path
+	document.Slug = slug
 
 	return document, nil
 }
 
-func (dm *DocumentManager) FindDocument(name string, year string, month string) (*Document, error) {
-	files, err := ioutil.ReadDir(dm.Root)
+func (dm *DocumentManager) parseDocuments() ([]*Document, error) {
+	files, err := listFiles(dm.Root)
 	if err != nil {
 		return nil, err
 	}
 
-	yearInt, err := strconv.Atoi(year)
-	if err != nil {
-		return nil, err
-	}
-	monthInt, err := strconv.Atoi(month)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, f := range files {
-		if strings.HasPrefix(f.Name(), ".") {
-			continue
-		}
-
-		if !strings.HasSuffix(f.Name(), name+".markdown") {
-			continue
-		}
-
-		date, fileName := parseFileName(f.Name())
-		fileName = strings.TrimSuffix(fileName, ".markdown")
-
-		if fileName != name {
-			continue
-		}
-
-		if yearInt > 0 && monthInt > 0 {
-			if date == nil {
-				continue
-			} else if yearInt != date["year"] || monthInt != date["month"] {
-				continue
-			}
-		}
-
-		fullName := strings.TrimSuffix(f.Name(), ".markdown")
-		return dm.LoadDocument(fullName)
-	}
-
-	return nil, nil
-}
-
-func (dm *DocumentManager) ListDocuments() ([]*Document, error) {
-	files, err := ioutil.ReadDir(dm.Root)
-	if err != nil {
-		return nil, err
-	}
+	sort.Sort(sort.Reverse(sort.StringSlice(files)))
 
 	var documents []*Document
+	for _, name := range files {
+		document, err := dm.parseDocument(name)
+		if err != nil {
+			continue
+		}
+
+		documents = append(documents, document)
+	}
+
+	return documents, nil
+}
+
+func listFiles(dir string) ([]string, error) {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	var documents []string
 	for _, f := range files {
 		if strings.HasPrefix(f.Name(), ".") {
 			continue
@@ -117,13 +251,7 @@ func (dm *DocumentManager) ListDocuments() ([]*Document, error) {
 			continue
 		}
 
-		fullName := strings.TrimSuffix(f.Name(), ".markdown")
-		document, err := dm.LoadDocument(fullName)
-		if err != nil {
-			continue
-		}
-
-		documents = append(documents, document)
+		documents = append(documents, f.Name())
 	}
 
 	return documents, nil
@@ -135,10 +263,12 @@ func parseFileName(input string) (map[string]int, string) {
 	if dateRe.MatchString(input) {
 		parts := strings.SplitN(input, "-", 2)
 
-		date, _ := parseDate(parts[0])
+		if len(parts) == 2 {
+			date, _ := parseDate(parts[0])
 
-		if date != nil {
-			return date, parts[1]
+			if date != nil {
+				return date, parts[1]
+			}
 		}
 	}
 
@@ -157,7 +287,7 @@ func parseDate(input string) (map[string]int, error) {
 	return date, nil
 }
 
-func parseInput(input []byte) (*Document, error) {
+func parseContent(input []byte) (*Document, error) {
 	metaRaw, contentRaw := splitMetaAndContent(input)
 	meta := parseMeta(metaRaw)
 	preview, content := splitPreviewAndContent(contentRaw)
@@ -173,20 +303,24 @@ func parseInput(input []byte) (*Document, error) {
 	}
 
 	return &Document{
-		Slug:    "",
 		Created: map[string]string{"Year": "", "Month": "", "Day": ""},
 		Meta:    meta,
 		Preview: string(previewHtml),
 		Content: string(contentHtml)}, nil
 }
 
-func splitMetaAndContent(input []byte) ([]byte, []byte) {
+func splitMetaAndContent(input []byte) (meta, content []byte) {
 	retval := strings.SplitN(string(input), "\n\n", 2)
 
-	meta := []byte(retval[0])
-	content := []byte(retval[1])
+	if len(retval) == 2 {
+		meta = []byte(retval[0])
+		content = []byte(retval[1])
+	} else {
+		meta = []byte{}
+		content = input
+	}
 
-	return meta, content
+	return
 }
 
 func splitPreviewAndContent(input []byte) ([]byte, []byte) {
@@ -207,13 +341,15 @@ func splitPreviewAndContent(input []byte) ([]byte, []byte) {
 }
 
 func parseMeta(input []byte) map[string]string {
-	meta := make(map[string]string)
+	meta := map[string]string{}
 
 	pairs := strings.Split(string(input), "\n")
 
 	for _, pair := range pairs {
 		values := strings.SplitN(pair, ":", 2)
-		meta[strings.TrimSpace(values[0])] = strings.TrimSpace(values[1])
+		if len(values) == 2 {
+			meta[strings.TrimSpace(values[0])] = strings.TrimSpace(values[1])
+		}
 	}
 
 	return meta

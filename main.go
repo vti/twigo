@@ -1,19 +1,20 @@
 package main
 
 import (
-    "bytes"
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
-    "fmt"
 
 	"github.com/docopt/docopt-go"
 	"github.com/gorilla/mux"
 
 	"github.com/vti/twigo/app"
 	"github.com/vti/twigo/app/action"
+	"github.com/vti/twigo/app/model"
 )
 
 func detectHome() string {
@@ -105,31 +106,44 @@ func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
 				"safeHtml": func(text string) template.HTML {
 					return template.HTML(text)
 				},
-                "partial":func(name string, ctx interface{}) template.HTML {
-                    name = context.App.Home+"/templates/"+name
-                    t, err := template.New(name).ParseFiles(name);
-                    if err != nil {
-                        return ""
-                    }
-                    output := bytes.Buffer{}
-                    err = t.Execute(&output, ctx)
-                    if err != nil {
-                        return ""
-                    }
-                        fmt.Println(output)
-                    return template.HTML(output.String())
-                },
-                "buildUrl": func(name string, args ...string) string {
-                    route := context.App.Router.Get(name)
-                    if route == nil {
-                        return ""
-                    }
-                    url, err := route.URL(args...)
-                    if err != nil {
-                        return ""
-                    }
-                    return url.String()
-                }}).
+				"partial": func(name string, ctx interface{}) template.HTML {
+					name = context.App.Home + "/templates/" + name
+					t, err := template.New(name).ParseFiles(name)
+					if err != nil {
+						return ""
+					}
+					output := bytes.Buffer{}
+					err = t.Execute(&output, ctx)
+					if err != nil {
+						return ""
+					}
+					fmt.Println(output)
+					return template.HTML(output.String())
+				},
+				"buildViewArticleUrl": func(document *model.Document) string {
+					route := context.App.Router.Get("ViewArticle")
+					if route == nil {
+						return ""
+					}
+					url, err := route.URL("year", document.Created["Year"],
+						"month", document.Created["Month"],
+						"title", document.Slug)
+					if err != nil {
+						return ""
+					}
+					return url.String()
+				},
+				"buildUrl": func(name string, args ...string) string {
+					route := context.App.Router.Get(name)
+					if route == nil {
+						return ""
+					}
+					url, err := route.URL(args...)
+					if err != nil {
+						return ""
+					}
+					return url.String()
+				}}).
 				ParseFiles(templateFiles...)
 			if err != nil {
 				log.Print(err)
