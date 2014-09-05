@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -639,6 +638,5 @@ func TestOlderDocument(t *testing.T) {
 func TestDocumentCreated(t *testing.T) {
 	document := Document{Created: map[string]string{"Year": "2011", "Month": "02", "Day": "13"}}
 
-	fmt.Println(document.Created)
 	assert.Equal(t, "20110213", document.Created.String())
 }
