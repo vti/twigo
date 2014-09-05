@@ -1,7 +1,7 @@
 package app
 
 import (
-    "github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 )
 
 type Configuration struct {
@@ -10,10 +10,11 @@ type Configuration struct {
 	Generator   string
 	Description string
 	About       string
+	Menu        []map[string]string
 }
 
 type Twigo struct {
-	Home string
-	Conf *Configuration
-    Router *mux.Router
+	Home   string
+	Conf   *Configuration
+	Router *mux.Router
 }

@@ -14,10 +14,16 @@ import (
 	"github.com/russross/blackfriday"
 )
 
+type Date map[string]string
+
+func (c Date) String() string {
+	return c["Year"] + c["Month"] + c["Day"]
+}
+
 type Document struct {
 	Path    string
 	Slug    string
-	Created map[string]string
+	Created Date
 	Meta    map[string]string
 	Preview string
 	Content string
@@ -71,9 +77,7 @@ func (dm *DocumentManager) LoadDocuments(limit int, offset string) ([]*Document,
 	if len(offset) > 0 {
 		var index int
 		for i, document := range documents {
-			currentTimestamp := document.Created["Year"] +
-				document.Created["Month"] +
-				document.Created["Day"]
+			currentTimestamp := document.Created.String()
 			if currentTimestamp > offset {
 				continue
 			}
@@ -105,7 +109,7 @@ func (dm *DocumentManager) NextPageOffset(limit int, offset string) string {
 	}
 
 	last := documents[len(documents)-1]
-	return last.Created["Year"] + last.Created["Month"] + last.Created["Day"]
+	return last.Created.String()
 }
 
 func (dm *DocumentManager) PrevPageOffset(limit int, offset string) string {
@@ -116,8 +120,7 @@ func (dm *DocumentManager) PrevPageOffset(limit int, offset string) string {
 	documents, _ := dm.LoadDocuments(0, "")
 	var index int
 	for i, document := range documents {
-		currentTimestamp := document.Created["Year"] +
-			document.Created["Month"] + document.Created["Day"]
+		currentTimestamp := document.Created.String()
 
 		if currentTimestamp <= offset {
 			index = i
@@ -135,43 +138,43 @@ func (dm *DocumentManager) PrevPageOffset(limit int, offset string) string {
 	}
 
 	offsetted := documents[index]
-	return offsetted.Created["Year"] + offsetted.Created["Month"] + offsetted.Created["Day"]
+	return offsetted.Created.String()
 }
 
 func (dm *DocumentManager) NewerDocument(document *Document) *Document {
 	documents, _ := dm.LoadDocuments(0, "")
 
-    var index int
-    for i, d := range documents {
-        if document.Path == d.Path {
-            index = i
-            break
-        }
-    }
+	var index int
+	for i, d := range documents {
+		if document.Path == d.Path {
+			index = i
+			break
+		}
+	}
 
-    if index == 0 {
-        return nil
-    }
+	if index == 0 {
+		return nil
+	}
 
-    return documents[index - 1]
+	return documents[index-1]
 }
 
 func (dm *DocumentManager) OlderDocument(document *Document) *Document {
 	documents, _ := dm.LoadDocuments(0, "")
 
-    var index int
-    for i, d := range documents {
-        index = i
-        if document.Path == d.Path {
-            break
-        }
-    }
+	var index int
+	for i, d := range documents {
+		index = i
+		if document.Path == d.Path {
+			break
+		}
+	}
 
-    if index + 1 >= len(documents) {
-        return nil
-    }
+	if index+1 >= len(documents) {
+		return nil
+	}
 
-    return documents[index + 1]
+	return documents[index+1]
 }
 
 func (dm *DocumentManager) parseDocument(name string) (*Document, error) {

@@ -27,6 +27,9 @@
                         <span id="author">{{.Conf.Author}}</span>,
                         <span id="about">{{.Conf.About}}</span>
                         <div class="menu">
+                            {{range .Conf.Menu}}
+                            <a href="{{.Link}}">{{.Title}}</a>
+                            {{end}}
                         </div>
                     </div>
                 </div>

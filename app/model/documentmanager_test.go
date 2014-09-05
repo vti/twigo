@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -518,9 +519,9 @@ func TestNewerDocumentNotFound(t *testing.T) {
 
 	dm := DocumentManager{Root: tempDir}
 
-	got := dm.NewerDocument(&Document{Path:"foobar"})
+	got := dm.NewerDocument(&Document{Path: "foobar"})
 
-    assert.Nil(t, got)
+	assert.Nil(t, got)
 
 	os.RemoveAll(tempDir)
 }
@@ -540,9 +541,9 @@ func TestNewerDocumentNo(t *testing.T) {
 
 	dm := DocumentManager{Root: tempDir}
 
-	got := dm.NewerDocument(&Document{Path:tempDir + "20110115-new.markdown"})
+	got := dm.NewerDocument(&Document{Path: tempDir + "20110115-new.markdown"})
 
-    assert.Nil(t, got)
+	assert.Nil(t, got)
 
 	os.RemoveAll(tempDir)
 }
@@ -562,9 +563,9 @@ func TestNewerDocument(t *testing.T) {
 
 	dm := DocumentManager{Root: tempDir}
 
-	got := dm.NewerDocument(&Document{Path:tempDir + "20110114-old.markdown"})
+	got := dm.NewerDocument(&Document{Path: tempDir + "20110114-old.markdown"})
 
-    assert.Equal(t, "new", got.Slug)
+	assert.Equal(t, "new", got.Slug)
 
 	os.RemoveAll(tempDir)
 }
@@ -584,9 +585,9 @@ func TestOlderDocumentNotFound(t *testing.T) {
 
 	dm := DocumentManager{Root: tempDir}
 
-	got := dm.OlderDocument(&Document{Path:"foobar"})
+	got := dm.OlderDocument(&Document{Path: "foobar"})
 
-    assert.Nil(t, got)
+	assert.Nil(t, got)
 
 	os.RemoveAll(tempDir)
 }
@@ -606,9 +607,9 @@ func TestOlderDocumentNo(t *testing.T) {
 
 	dm := DocumentManager{Root: tempDir}
 
-	got := dm.OlderDocument(&Document{Path:tempDir + "20110112-very-very.markdown"})
+	got := dm.OlderDocument(&Document{Path: tempDir + "20110112-very-very.markdown"})
 
-    assert.Nil(t, got)
+	assert.Nil(t, got)
 
 	os.RemoveAll(tempDir)
 }
@@ -628,9 +629,16 @@ func TestOlderDocument(t *testing.T) {
 
 	dm := DocumentManager{Root: tempDir}
 
-	got := dm.OlderDocument(&Document{Path:tempDir + "20110113-very-old.markdown"})
+	got := dm.OlderDocument(&Document{Path: tempDir + "20110113-very-old.markdown"})
 
-    assert.Equal(t, "very-very-old", got.Slug)
+	assert.Equal(t, "very-very-old", got.Slug)
 
 	os.RemoveAll(tempDir)
+}
+
+func TestDocumentCreated(t *testing.T) {
+	document := Document{Created: map[string]string{"Year": "2011", "Month": "02", "Day": "13"}}
+
+	fmt.Println(document.Created)
+	assert.Equal(t, "20110213", document.Created.String())
 }
