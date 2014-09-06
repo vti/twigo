@@ -49,6 +49,7 @@
             <div class="span2">&nbsp;</div>
             <div class="span8">
                 <div id="footer">
+                {{or .Conf.Footer "Powered by <a href=\"http://github.com/vti/twigo\">twigo</a>" | safeHtml}}
                 </div>
             </div>
             <div class="span2">&nbsp;</div>
