@@ -29,6 +29,7 @@ func (c Date) String() string {
 type Document struct {
 	Path        string
 	Slug        string
+	Tags        []string
 	Created     Date
 	Meta        map[string]string
 	Preview     string
@@ -304,8 +305,15 @@ func parseContent(input []byte) (*Document, error) {
 		return nil, err
 	}
 
+	tags := []string{}
+	if len(meta["Tags"]) > 0 {
+		re := regexp.MustCompile("\\s*,+\\s*")
+		tags = re.Split(string(meta["Tags"]), -1)
+	}
+
 	return &Document{
 		Meta:        meta,
+		Tags:        tags,
 		Preview:     string(previewHtml),
 		PreviewLink: string(previewLink),
 		Content:     string(contentHtml)}, nil
@@ -358,7 +366,8 @@ func parseMeta(input []byte) map[string]string {
 	for _, pair := range pairs {
 		values := strings.SplitN(pair, ":", 2)
 		if len(values) == 2 {
-			meta[strings.TrimSpace(values[0])] = strings.TrimSpace(values[1])
+			name := strings.TrimSpace(values[0])
+			meta[name] = strings.TrimSpace(values[1])
 		}
 	}
 

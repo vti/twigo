@@ -136,7 +136,7 @@ func TestParseDocument(t *testing.T) {
 
 	filename := "20110113-article.markdown"
 
-	input := "Title: Foo\n\nHi there\n[cut]\nAnd here"
+	input := "Title: Foo\nTags: foo,,bar, baz\n\nHi there\n[cut]\nAnd here"
 	ioutil.WriteFile(tempDir+filename, []byte(input), 0644)
 
 	dm := DocumentManager{Root: tempDir}
@@ -147,8 +147,26 @@ func TestParseDocument(t *testing.T) {
 	assert.Equal(t, 2011, document.Created["Year"])
 	assert.Equal(t, 1, document.Created["Month"])
 	assert.Equal(t, "Foo", document.Meta["Title"])
+	assert.Equal(t, 3, len(document.Tags))
 	assert.Equal(t, "<p>Hi there</p>\n", document.Preview)
 	assert.Equal(t, "<p>And here</p>\n", document.Content)
+
+	os.RemoveAll(tempDir)
+}
+
+func TestParseDocumentNoTags(t *testing.T) {
+	tempDir, _ := ioutil.TempDir("", "")
+	tempDir = tempDir + "/"
+
+	filename := "20110113-article.markdown"
+
+	input := "Title: Foo\n\nHi there\n[cut]\nAnd here"
+	ioutil.WriteFile(tempDir+filename, []byte(input), 0644)
+
+	dm := DocumentManager{Root: tempDir}
+	document, _ := dm.parseDocument(filename)
+
+	assert.Equal(t, 0, len(document.Tags))
 
 	os.RemoveAll(tempDir)
 }
