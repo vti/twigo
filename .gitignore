@@ -1,1 +1,4 @@
 conf.json
+articles/*markdown
+*.swp
+pages/*markdown
