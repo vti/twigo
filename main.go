@@ -107,6 +107,9 @@ func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
 				"safeHtml": func(text string) template.HTML {
 					return template.HTML(text)
 				},
+				"conf": func() *app.Configuration {
+					return context.App.Conf
+				},
 				"partial": func(name string, ctx interface{}) template.HTML {
 					name = context.App.Home + "/templates/" + name
 					t, err := template.New(name).ParseFiles(name)
@@ -151,13 +154,17 @@ func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
 					return url.String()
 				}}).
 				ParseFiles(templateFiles...)
+
 			if err != nil {
 				log.Print(err)
 				http.NotFound(w, r)
 				return
 			}
 
-			t.Execute(w, context.TemplateVars)
+			err = t.Execute(w, context.TemplateVars)
+			if err != nil {
+				log.Print(err)
+			}
 		}
 	}
 }

@@ -27,12 +27,13 @@ func (c Date) String() string {
 }
 
 type Document struct {
-	Path    string
-	Slug    string
-	Created Date
-	Meta    map[string]string
-	Preview string
-	Content string
+	Path        string
+	Slug        string
+	Created     Date
+	Meta        map[string]string
+	Preview     string
+	PreviewLink string
+	Content     string
 }
 
 type DocumentManager struct {

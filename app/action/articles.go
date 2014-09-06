@@ -35,6 +35,7 @@ func (action *ListArticles) Execute(w http.ResponseWriter, r *http.Request) {
 	action.Context.SetTemplateFiles([]string{
 		"layouts/html.tpl",
 		"articles.tpl",
+		"article-meta.tpl",
 	})
 
 	vars := map[string]interface{}{

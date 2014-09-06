@@ -2,7 +2,7 @@
 
 <div class="text">
     <h1 class="title"><a href="{{buildViewArticleUrl .Document}}">{{.Document.Meta.Title}}</a></h1>
-    {{template "article-meta" .}}
+    {{template "article-meta" .Document}}
     <div class="article-content">
         {{if .Document.Preview}}
         {{.Document.Preview | safeHtml}}

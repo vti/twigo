@@ -8,11 +8,11 @@
         <h2 class="title">
             <a href="{{$url}}">{{.Meta.Title}}</a>
         </h2>
-        {partial "article-meta.tpl" .}
+        {{template "article-meta" .}}
         <div class="article-content">
         {{if .Preview}}
                 {{.Preview | safeHtml}}
-                <div class="more">&rarr; <a href="{{$url}}#cut">{preview_link}</a></div>
+                <div class="more">&rarr; <a href="{{$url}}#cut">{{ or .PreviewLink "Read more"}}</a></div>
         {{else}}
             {{.Content | safeHtml}}
         {{end}}

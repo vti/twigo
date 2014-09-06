@@ -1,7 +1,9 @@
 {{define "article-meta"}}
 
+{{ $conf := conf }}
+
     <div class="article-meta">
-        {{dateFmt .Document.Created}} by {{or .Document.Meta.Author .Conf.Author}}
+        {{dateFmt .Created}} by {{or .Meta.Author $conf.Author}}
         <div class="tags">
         </div>
     </div>
