@@ -292,7 +292,7 @@ func parseDate(input string) (Date, error) {
 func parseContent(input []byte) (*Document, error) {
 	metaRaw, contentRaw := splitMetaAndContent(input)
 	meta := parseMeta(metaRaw)
-	preview, content := splitPreviewAndContent(contentRaw)
+	preview, previewLink, content := splitPreviewAndContent(contentRaw)
 
 	previewHtml, err := renderMarkdown(preview)
 	if err != nil {
@@ -305,9 +305,10 @@ func parseContent(input []byte) (*Document, error) {
 	}
 
 	return &Document{
-		Meta:    meta,
-		Preview: string(previewHtml),
-		Content: string(contentHtml)}, nil
+		Meta:        meta,
+		Preview:     string(previewHtml),
+		PreviewLink: string(previewLink),
+		Content:     string(contentHtml)}, nil
 }
 
 func splitMetaAndContent(input []byte) (meta, content []byte) {
@@ -324,21 +325,29 @@ func splitMetaAndContent(input []byte) (meta, content []byte) {
 	return
 }
 
-func splitPreviewAndContent(input []byte) ([]byte, []byte) {
-	retval := strings.SplitN(string(input), "\n[cut]\n", 2)
+func splitPreviewAndContent(input []byte) ([]byte, []byte, []byte) {
+	re := regexp.MustCompile("\n\\[cut\\](?: +([^\r\n]+))?\r?\n")
+
+	retval := re.Split(string(input), -1)
 
 	var preview []byte
+	var previewLink []byte
 	var content []byte
 
 	if len(retval) < 2 {
 		preview = nil
 		content = []byte(retval[0])
 	} else {
+		submatch := re.FindStringSubmatch(string(input))
+		if len(submatch) > 1 {
+			previewLink = []byte(submatch[1])
+		}
+
 		preview = []byte(retval[0])
 		content = []byte(retval[1])
 	}
 
-	return preview, content
+	return preview, previewLink, content
 }
 
 func parseMeta(input []byte) map[string]string {

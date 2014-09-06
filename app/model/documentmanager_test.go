@@ -35,16 +35,26 @@ func TestSplitMetaAndContentWithoutMeta(t *testing.T) {
 }
 
 func TestSplitPreviewAndContent(t *testing.T) {
-	preview, content := splitPreviewAndContent([]byte("foo\n[cut]\nbar"))
+	preview, previewLink, content := splitPreviewAndContent([]byte("foo\n[cut]\nbar"))
 
 	assert.Equal(t, "foo", string(preview))
+	assert.Equal(t, "", string(previewLink))
+	assert.Equal(t, "bar", string(content))
+}
+
+func TestSplitPreviewAndContentWithPreviewLink(t *testing.T) {
+	preview, previewLink, content := splitPreviewAndContent([]byte("foo\n[cut] Click next!\nbar"))
+
+	assert.Equal(t, "foo", string(preview))
+	assert.Equal(t, "Click next!", string(previewLink))
 	assert.Equal(t, "bar", string(content))
 }
 
 func TestSplitPreviewAndContentWithoutPreview(t *testing.T) {
-	preview, content := splitPreviewAndContent([]byte("foo\nbar"))
+	preview, previewLink, content := splitPreviewAndContent([]byte("foo\nbar"))
 
 	assert.Equal(t, "", string(preview))
+	assert.Equal(t, "", string(previewLink))
 	assert.Equal(t, "foo\nbar", string(content))
 }
 
