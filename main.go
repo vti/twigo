@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/docopt/docopt-go"
 	"github.com/gorilla/mux"
@@ -132,6 +133,11 @@ func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
 						return ""
 					}
 					return url.String()
+				},
+				"dateFmt": func(date map[string]string) string {
+					const layout = "Mo, 2 Jan 2006"
+					t := time.Date(2009, time.November, 10, 15, 0, 0, 0, time.Local)
+					return t.Format(layout)
 				},
 				"buildUrl": func(name string, args ...string) string {
 					route := context.App.Router.Get(name)

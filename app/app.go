@@ -11,6 +11,7 @@ type Configuration struct {
 	Description string
 	About       string
 	Menu        []map[string]string
+	PageLimit   int
 }
 
 type Twigo struct {

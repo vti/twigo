@@ -3,7 +3,7 @@
 {{if .Documents}}
     {{range .Documents}}
 
-    {{$url := buildUrl "ViewArticle" "year" .Created.Year "month" .Created.Month "title" .Slug}}
+    {{$url := buildViewArticleUrl .}}
     <div class="text">
         <h2 class="title">
             <a href="{{$url}}">{{.Meta.Title}}</a>

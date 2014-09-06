@@ -41,10 +41,10 @@ func (action *ViewArticle) Execute(w http.ResponseWriter, r *http.Request) {
 	})
 
 	vars := map[string]interface{}{
-		"Conf": action.Context.App.Conf,
-        "Document":document,
-        "NewerDocument":dm.NewerDocument(document),
-        "OlderDocument":dm.OlderDocument(document),
+		"Conf":          action.Context.App.Conf,
+		"Document":      document,
+		"NewerDocument": dm.NewerDocument(document),
+		"OlderDocument": dm.OlderDocument(document),
 	}
 	action.Context.SetTemplateVars(vars)
 }
