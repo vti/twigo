@@ -8,6 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestDate(t *testing.T) {
+	date := Date{"Year": 2011, "Month": 1, "Day": 2}
+
+	assert.Equal(t, "20110102", date.String())
+}
+
 func TestRenderMarkdown(t *testing.T) {
 	output, _ := renderMarkdown([]byte("Hello"))
 
@@ -70,9 +76,9 @@ func TestParseMetaWithEmptyValue(t *testing.T) {
 func TestParseFileName(t *testing.T) {
 	date, fileName := parseFileName("20110112-filename.markdown")
 
-	assert.Equal(t, 2011, date["year"])
-	assert.Equal(t, 1, date["month"])
-	assert.Equal(t, 12, date["day"])
+	assert.Equal(t, 2011, date["Year"])
+	assert.Equal(t, 1, date["Month"])
+	assert.Equal(t, 12, date["Day"])
 	assert.Equal(t, "filename.markdown", fileName)
 }
 
@@ -102,9 +108,9 @@ func TestParseInput(t *testing.T) {
 func TestParseDate(t *testing.T) {
 	date, _ := parseDate("20111213")
 
-	assert.Equal(t, 2011, date["year"])
-	assert.Equal(t, 12, date["month"])
-	assert.Equal(t, 13, date["day"])
+	assert.Equal(t, 2011, date["Year"])
+	assert.Equal(t, 12, date["Month"])
+	assert.Equal(t, 13, date["Day"])
 }
 
 func TestParseInvalidDate(t *testing.T) {
@@ -128,8 +134,8 @@ func TestParseDocument(t *testing.T) {
 
 	assert.Equal(t, tempDir+filename, document.Path)
 	assert.Equal(t, "article", document.Slug)
-	assert.Equal(t, "2011", document.Created["Year"])
-	assert.Equal(t, "01", document.Created["Month"])
+	assert.Equal(t, 2011, document.Created["Year"])
+	assert.Equal(t, 1, document.Created["Month"])
 	assert.Equal(t, "Foo", document.Meta["Title"])
 	assert.Equal(t, "<p>Hi there</p>\n", document.Preview)
 	assert.Equal(t, "<p>And here</p>\n", document.Content)
@@ -636,7 +642,7 @@ func TestOlderDocument(t *testing.T) {
 }
 
 func TestDocumentCreated(t *testing.T) {
-	document := Document{Created: map[string]string{"Year": "2011", "Month": "02", "Day": "13"}}
+	document := Document{Created: Date{"Year": 2011, "Month": 2, "Day": 13}}
 
 	assert.Equal(t, "20110213", document.Created.String())
 }

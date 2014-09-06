@@ -126,17 +126,17 @@ func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
 					if route == nil {
 						return ""
 					}
-					url, err := route.URL("year", document.Created["Year"],
-						"month", document.Created["Month"],
+					url, err := route.URL("year", document.Created["Year"].String(),
+						"month", document.Created["Month"].String(),
 						"title", document.Slug)
 					if err != nil {
 						return ""
 					}
 					return url.String()
 				},
-				"dateFmt": func(date map[string]string) string {
+				"dateFmt": func(date model.Date) string {
 					const layout = "Mo, 2 Jan 2006"
-					t := time.Date(2009, time.November, 10, 15, 0, 0, 0, time.Local)
+					t := time.Date(int(date["Year"]), time.Month(date["Month"]), int(date["Day"]), 0, 0, 0, 0, time.Local)
 					return t.Format(layout)
 				},
 				"buildUrl": func(name string, args ...string) string {

@@ -14,10 +14,16 @@ import (
 	"github.com/russross/blackfriday"
 )
 
-type Date map[string]string
+type DateValue int
+type Date map[string]DateValue
 
+func (v DateValue) String() string {
+	return strconv.Itoa(int(v))
+}
 func (c Date) String() string {
-	return c["Year"] + c["Month"] + c["Day"]
+	return strconv.Itoa(int(c["Year"])) +
+		fmt.Sprintf("%02d", int(c["Month"])) +
+		fmt.Sprintf("%02d", int(c["Day"]))
 }
 
 type Document struct {
@@ -59,8 +65,8 @@ func (dm *DocumentManager) LoadDocumentBySlugAndDate(slug string, year string, m
 			continue
 		}
 
-		if year == document.Created["Year"] &&
-			fmt.Sprintf("%02d", month) == fmt.Sprintf("%02d", document.Created["Month"]) {
+		if year == document.Created["Year"].String() &&
+			fmt.Sprintf("%02d", month) == fmt.Sprintf("%02d", document.Created["Month"].String()) {
 			return document, nil
 		}
 	}
@@ -198,15 +204,7 @@ func (dm *DocumentManager) parseDocument(name string) (*Document, error) {
 	}
 
 	date, fileName := parseFileName(name)
-	if date != nil {
-		for _, t := range []string{"year", "month", "day"} {
-			value := strconv.Itoa(date[t])
-			if len(value) < 2 {
-				value = "0" + value
-			}
-			document.Created[strings.Title(t)] = value
-		}
-	}
+	document.Created = date
 
 	ext := filepath.Ext(fileName)
 	slug := strings.TrimSuffix(fileName, ext)
@@ -260,7 +258,7 @@ func listFiles(dir string) ([]string, error) {
 	return documents, nil
 }
 
-func parseFileName(input string) (map[string]int, string) {
+func parseFileName(input string) (Date, string) {
 	dateRe := regexp.MustCompile("^[0-9]{8}-")
 
 	if dateRe.MatchString(input) {
@@ -278,15 +276,15 @@ func parseFileName(input string) (map[string]int, string) {
 	return nil, input
 }
 
-func parseDate(input string) (map[string]int, error) {
+func parseDate(input string) (Date, error) {
 	t, err := time.Parse("20060102", input)
 	if err != nil {
 		return nil, err
 	}
 
-	date := map[string]int{"year": t.Year(),
-		"month": int(t.Month()),
-		"day":   t.Day()}
+	date := Date{"Year": DateValue(t.Year()),
+		"Month": DateValue(t.Month()),
+		"Day":   DateValue(t.Day())}
 	return date, nil
 }
 
@@ -306,7 +304,6 @@ func parseContent(input []byte) (*Document, error) {
 	}
 
 	return &Document{
-		Created: map[string]string{"Year": "", "Month": "", "Day": ""},
 		Meta:    meta,
 		Preview: string(previewHtml),
 		Content: string(contentHtml)}, nil
