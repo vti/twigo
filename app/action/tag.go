@@ -21,20 +21,10 @@ func (action *ViewTag) Execute(w http.ResponseWriter, r *http.Request) {
 	tag := action.Context.Capture("tag")
 
 	dm := &model.DocumentManager{Root: home + "/articles/"}
-	documents, err := dm.LoadDocuments(0, "")
+	documents, err := dm.LoadDocumentsByTag(tag)
 	if err != nil {
 		http.NotFound(w, r)
 		return
-	}
-
-	taggedDocuments := []*model.Document{}
-	for _, document := range documents {
-		for _, t := range document.Tags {
-			if t == tag {
-				taggedDocuments = append(taggedDocuments, document)
-				break
-			}
-		}
 	}
 
 	action.Context.SetTemplateName("layouts/html")
@@ -47,7 +37,7 @@ func (action *ViewTag) Execute(w http.ResponseWriter, r *http.Request) {
 	vars := map[string]interface{}{
 		"Conf":      action.Context.App.Conf,
 		"Tag":       tag,
-		"Documents": taggedDocuments,
+		"Documents": documents,
 	}
 	action.Context.SetTemplateVars(vars)
 }

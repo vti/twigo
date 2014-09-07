@@ -76,6 +76,25 @@ func (dm *DocumentManager) LoadDocumentBySlugAndDate(slug string, year string, m
 	return nil, nil
 }
 
+func (dm *DocumentManager) LoadDocumentsByTag(tag string) ([]*Document, error) {
+	documents, err := dm.LoadDocuments(0, "")
+	if err != nil {
+		return nil, err
+	}
+
+	taggedDocuments := []*Document{}
+	for _, document := range documents {
+		for _, t := range document.Tags {
+			if t == tag {
+				taggedDocuments = append(taggedDocuments, document)
+				break
+			}
+		}
+	}
+
+	return taggedDocuments, nil
+}
+
 func (dm *DocumentManager) LoadDocuments(limit int, offset string) ([]*Document, error) {
 	documents, err := dm.parseDocuments()
 	if err != nil {

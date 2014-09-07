@@ -674,3 +674,35 @@ func TestDocumentCreated(t *testing.T) {
 
 	assert.Equal(t, "20110213", document.Created.String())
 }
+
+func TestLoadDocumentsByTag(t *testing.T) {
+	tempDir, _ := ioutil.TempDir("", "")
+	tempDir = tempDir + "/"
+
+	ioutil.WriteFile(tempDir+"20111213-foo.markdown", []byte(string("Tags: foo, bar, baz\n\nhi")), 0644)
+	ioutil.WriteFile(tempDir+"20111214-foo.markdown", []byte(string("Tags: bar, baz\n\nhi")), 0644)
+	ioutil.WriteFile(tempDir+"20111215-foo.markdown", []byte(string("Tags: bar\n\nhi")), 0644)
+
+	dm := DocumentManager{Root: tempDir}
+	documents, _ := dm.LoadDocumentsByTag("bar")
+
+	assert.Equal(t, 3, len(documents))
+
+	os.RemoveAll(tempDir)
+}
+
+func TestLoadDocumentsByUnknownTag(t *testing.T) {
+	tempDir, _ := ioutil.TempDir("", "")
+	tempDir = tempDir + "/"
+
+	ioutil.WriteFile(tempDir+"20111213-foo.markdown", []byte(string("Tags: foo, bar, baz\n\nhi")), 0644)
+	ioutil.WriteFile(tempDir+"20111214-foo.markdown", []byte(string("Tags: bar, baz\n\nhi")), 0644)
+	ioutil.WriteFile(tempDir+"20111215-foo.markdown", []byte(string("Tags: bar\n\nhi")), 0644)
+
+	dm := DocumentManager{Root: tempDir}
+	documents, _ := dm.LoadDocumentsByTag("unknown")
+
+	assert.Equal(t, 0, len(documents))
+
+	os.RemoveAll(tempDir)
+}
