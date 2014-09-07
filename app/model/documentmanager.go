@@ -25,6 +25,10 @@ func (c Date) String() string {
 		fmt.Sprintf("%02d", int(c["Month"])) +
 		fmt.Sprintf("%02d", int(c["Day"]))
 }
+func (c Date) Time() time.Time {
+	t, _ := time.Parse("20060102", c.String())
+    return t
+}
 
 type Document struct {
 	Path        string

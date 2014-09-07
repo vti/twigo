@@ -83,7 +83,10 @@ Options:
 		Methods("GET")
 	router.Handle("/",
 		makeHandler(&action.ListArticles{}, twigo)).
-		Methods("GET")
+		Methods("GET").Name("Index")
+	router.Handle("/index.rss",
+		makeHandler(&action.ListArticlesRss{}, twigo)).
+		Methods("GET").Name("ListArticlesRss")
 
 	http.Handle("/", router)
 
@@ -141,7 +144,7 @@ func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
 					if err != nil {
 						return ""
 					}
-					return url.String()
+					return "http://" + r.Host + url.String()
 				},
 				"dateFmt": func(date model.Date) string {
 					const layout = "Mo, 2 Jan 2006"
@@ -157,7 +160,7 @@ func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
 					if err != nil {
 						return ""
 					}
-					return url.String()
+					return "http://" + r.Host + url.String()
 				}}).
 				ParseFiles(templateFiles...)
 
