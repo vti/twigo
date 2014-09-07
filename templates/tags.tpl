@@ -6,7 +6,7 @@
 {{if .Tags}}
     <div class="tags">
     {{range $key, $value := .Tags}}
-        <a href="/tags/{{$key | urlquery}}.html">{{$key}}</a>
+        <a href="/tags/{{$key | urlquery}}">{{$key}}</a>
         <sub>({{$value}})</sub>
     {{end}}
     </div>
