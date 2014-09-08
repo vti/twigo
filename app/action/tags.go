@@ -3,34 +3,29 @@ package action
 import (
 	"net/http"
 
-	"github.com/vti/twigo/app"
-    "github.com/vti/twigo/app/model"
+	"github.com/vti/twigo/app/model"
 )
 
 type ListTags struct {
-	Context *app.Context
-}
-
-func (action *ListTags) SetContext(context *app.Context) {
-	action.Context = context
+	BaseAction
 }
 
 func (action *ListTags) Execute(w http.ResponseWriter, r *http.Request) {
-    home := action.Context.App.Home
+	home := action.Context.App.Home
 
-    dm := &model.DocumentManager{Root: home + "/articles/"}
-    documents, err := dm.LoadDocuments(0, "")
-    if err != nil {
-        http.NotFound(w, r)
-    return
-    }
+	dm := &model.DocumentManager{Root: home + "/articles/"}
+	documents, err := dm.LoadDocuments(0, "")
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
 
 	tags := map[string]int{}
-    for _, document := range documents {
-        for _, t := range document.Tags {
-            tags[t]++;
-        }
-    }
+	for _, document := range documents {
+		for _, t := range document.Tags {
+			tags[t]++
+		}
+	}
 
 	action.Context.SetTemplateName("layouts/html")
 	action.Context.SetTemplateFiles([]string{

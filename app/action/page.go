@@ -3,16 +3,11 @@ package action
 import (
 	"net/http"
 
-	"github.com/vti/twigo/app"
 	"github.com/vti/twigo/app/model"
 )
 
 type ViewPage struct {
-	Context *app.Context
-}
-
-func (action *ViewPage) SetContext(context *app.Context) {
-	action.Context = context
+	BaseAction
 }
 
 func (action *ViewPage) Execute(w http.ResponseWriter, r *http.Request) {

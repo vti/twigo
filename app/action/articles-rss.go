@@ -5,16 +5,11 @@ import (
 	"net/http"
 
 	"github.com/gorilla/feeds"
-	"github.com/vti/twigo/app"
 	"github.com/vti/twigo/app/model"
 )
 
 type ListArticlesRss struct {
-	Context *app.Context
-}
-
-func (action *ListArticlesRss) SetContext(context *app.Context) {
-	action.Context = context
+	BaseAction
 }
 
 func (action *ListArticlesRss) Execute(w http.ResponseWriter, r *http.Request) {
