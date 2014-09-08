@@ -6,11 +6,11 @@ import (
 	"github.com/vti/twigo/app/model"
 )
 
-type ViewTag struct {
+type ListArticlesByTag struct {
 	BaseAction
 }
 
-func (action *ViewTag) Execute(w http.ResponseWriter, r *http.Request) {
+func (action *ListArticlesByTag) Execute(w http.ResponseWriter, r *http.Request) {
 	home := action.Context.App.Home
 
 	tag := action.Context.Capture("tag")

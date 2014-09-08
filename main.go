@@ -79,7 +79,10 @@ Options:
 		makeHandler(&action.ListTags{}, twigo)).
 		Methods("GET")
 	router.Handle("/tags/{tag:[A-Za-z0-9]+}",
-		makeHandler(&action.ViewTag{}, twigo)).
+		makeHandler(&action.ListArticlesByTag{}, twigo)).
+		Methods("GET")
+	router.Handle("/tags/{tag:[A-Za-z0-9]+}.rss",
+		makeHandler(&action.ListArticlesByTagRss{}, twigo)).
 		Methods("GET")
 	router.Handle("/",
 		makeHandler(&action.ListArticles{}, twigo)).
