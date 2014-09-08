@@ -16,6 +16,7 @@ import (
 	"github.com/vti/twigo/app"
 	"github.com/vti/twigo/app/action"
 	"github.com/vti/twigo/app/model"
+	"github.com/vti/twigo/app/utils"
 )
 
 func detectHome() string {
@@ -136,34 +137,16 @@ func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
 					fmt.Println(output)
 					return template.HTML(output.String())
 				},
-				"buildViewArticleUrl": func(document *model.Document) string {
-					route := context.App.Router.Get("ViewArticle")
-					if route == nil {
-						return ""
-					}
-					url, err := route.URL("year", document.Created["Year"].String(),
-						"month", document.Created["Month"].String(),
-						"title", document.Slug)
-					if err != nil {
-						return ""
-					}
-					return "http://" + r.Host + url.String()
-				},
 				"dateFmt": func(date model.Date) string {
 					const layout = "Mo, 2 Jan 2006"
 					t := time.Date(int(date["Year"]), time.Month(date["Month"]), int(date["Day"]), 0, 0, 0, 0, time.Local)
 					return t.Format(layout)
 				},
+				"buildViewArticleUrl": func(document *model.Document) string {
+					return "http://" + r.Host + utils.BuildViewArticleUrl(context.App.Router, document)
+				},
 				"buildUrl": func(name string, args ...string) string {
-					route := context.App.Router.Get(name)
-					if route == nil {
-						return ""
-					}
-					url, err := route.URL(args...)
-					if err != nil {
-						return ""
-					}
-					return "http://" + r.Host + url.String()
+					return "http://" + r.Host + utils.BuildUrl(context.App.Router, name, args...)
 				}}).
 				ParseFiles(templateFiles...)
 

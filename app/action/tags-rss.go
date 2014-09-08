@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/feeds"
+
 	"github.com/vti/twigo/app/model"
+	"github.com/vti/twigo/app/utils"
 )
 
 type ListArticlesByTagRss struct {
@@ -14,6 +16,7 @@ type ListArticlesByTagRss struct {
 
 func (action *ListArticlesByTagRss) Execute(w http.ResponseWriter, r *http.Request) {
 	home := action.Context.App.Home
+	router := action.Context.App.Router
 
 	tag := action.Context.Capture("tag")
 
@@ -32,7 +35,7 @@ func (action *ListArticlesByTagRss) Execute(w http.ResponseWriter, r *http.Reque
 	conf := action.Context.App.Conf
 	feed := &feeds.Feed{
 		Title:       conf.Title,
-		Link:        &feeds.Link{Href: action.buildUrl(r, "Index")},
+		Link:        &feeds.Link{Href: utils.BuildUrl(router, "Index")},
 		Description: conf.Description,
 		Author:      &feeds.Author{conf.Author, ""},
 		Created:     pubDate.Time(),
@@ -47,8 +50,8 @@ func (action *ListArticlesByTagRss) Execute(w http.ResponseWriter, r *http.Reque
 		feed.Items = append(feed.Items,
 			&feeds.Item{
 				Title:       document.Meta["Title"],
-				Link:        &feeds.Link{Href: action.buildViewArticleUrl(r, document)},
-				Id:          action.buildViewArticleUrl(r, document),
+				Link:        &feeds.Link{Href: utils.BuildViewArticleUrl(router, document)},
+				Id:          utils.BuildViewArticleUrl(router, document),
 				Description: description,
 				Author:      &feeds.Author{conf.Author, ""},
 				Created:     document.Created.Time(),
