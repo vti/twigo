@@ -91,6 +91,9 @@ Options:
 	router.Handle("/index.rss",
 		makeHandler(&action.ListArticlesRss{}, twigo)).
 		Methods("GET").Name("ListArticlesRss")
+	router.Handle("/archive",
+		makeHandler(&action.ListArticlesArchive{}, twigo)).
+		Methods("GET").Name("ListArticlesArchive")
 
 	http.Handle("/", router)
 
