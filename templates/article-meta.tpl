@@ -6,7 +6,7 @@
         {{dateFmt .Created}} by {{or .Meta.Author $conf.Author}}
         <div class="tags">
         {{range .Tags}}
-            <a href="/tags/{{.}}">{{.}}</a>
+            <a href="{{buildUrl "ListArticlesByTag" "tag" .}}">{{.}}</a>
         {{end}}
         </div>
     </div>

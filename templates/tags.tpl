@@ -6,7 +6,7 @@
 {{if .Tags}}
     <div class="tags">
     {{range $key, $value := .Tags}}
-        <a href="/tags/{{$key | urlquery}}">{{$key}}</a>
+        <a href="{{buildUrl "ListArticlesByTag" "tag" $key}}">{{$key}}</a>
         <sub>({{$value}})</sub>
     {{end}}
     </div>

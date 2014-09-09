@@ -70,28 +70,28 @@ Options:
 	fileServer := http.StripPrefix("/static/", http.FileServer(http.Dir("static")))
 	http.Handle("/static/", fileServer)
 
-	router.Handle("/articles/{year:[0-9]{4}}/{month:0?[1-9]|1[012]}/{title:[A-Za-z0-9-]+}",
+	router.Handle("/articles/{year:[0-9]{4}}/{month:0?[1-9]|1[012]}/{title:[A-Za-z0-9-]+}.html",
 		makeHandler(&action.ViewArticle{}, twigo)).
 		Methods("GET").Name("ViewArticle")
-	router.Handle("/pages/{title:[a-z0-9]+}",
+	router.Handle("/pages/{title:[a-z0-9]+}.html",
 		makeHandler(&action.ViewPage{}, twigo)).
 		Methods("GET")
-	router.Handle("/tags",
+	router.Handle("/tags.html",
 		makeHandler(&action.ListTags{}, twigo)).
 		Methods("GET")
-	router.Handle("/tags/{tag:[A-Za-z0-9]+}",
+	router.Handle("/tags/{tag:[A-Za-z0-9]+}.html",
 		makeHandler(&action.ListArticlesByTag{}, twigo)).
-		Methods("GET")
+		Methods("GET").Name("ListArticlesByTag")
 	router.Handle("/tags/{tag:[A-Za-z0-9]+}.rss",
 		makeHandler(&action.ListArticlesByTagRss{}, twigo)).
-		Methods("GET")
+		Methods("GET").Name("ListArticlesByTagRss")
 	router.Handle("/",
 		makeHandler(&action.ListArticles{}, twigo)).
 		Methods("GET").Name("Index")
 	router.Handle("/index.rss",
 		makeHandler(&action.ListArticlesRss{}, twigo)).
 		Methods("GET").Name("ListArticlesRss")
-	router.Handle("/archive",
+	router.Handle("/archive.html",
 		makeHandler(&action.ListArticlesArchive{}, twigo)).
 		Methods("GET").Name("ListArticlesArchive")
 

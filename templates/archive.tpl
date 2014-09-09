@@ -9,7 +9,7 @@
             {{.Name}}
             <div style="margin-left:2em">
             {{range .Documents}}
-                <a href="">{{.Meta.Title}}</a>
+                <a href="{{buildViewArticleUrl .}}">{{.Meta.Title}}</a>
                 {{template "article-meta" .}}
             {{end}}
             </div>

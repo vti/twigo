@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-responsive.min.css" type="text/css" />
         <link rel="stylesheet" href="/static/css/codemirror.css" type="text/css" />
         <link rel="stylesheet" href="/static/css/styles.css" type="text/css" />
-        <link rel="alternate" type="application/rss+xml" title="{{.Conf.Title}}" href="/index.rss" />
+        <link rel="alternate" type="application/rss+xml" title="{{.Conf.Title}}" href="{{buildUrl "ListArticlesRss"}}" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="generator" content="{{.Conf.Generator}}" />
     </head>
@@ -20,8 +20,8 @@
                 <div class="page-header">
                     <div id="header">
                         <div id="title">
-                            <a href="/">{{.Conf.Title}}</a>
-                            <sup><a href="/index.rss"><img src="/static/images/rss.png" alt="RSS" /></a></sup>
+                            <a href="{{buildUrl "Index"}}">{{.Conf.Title}}</a>
+                            <sup><a href="{{buildUrl "ListArticlesRss"}}"><img src="/static/images/rss.png" alt="RSS" /></a></sup>
                         </div>
                         <div id="description">{{.Conf.Description}}</div>
                         <span id="author">{{.Conf.Author}}</span>,
