@@ -1,6 +1,8 @@
 package app
 
 import (
+	"net/http"
+
 	"github.com/gorilla/mux"
 )
 
@@ -20,4 +22,9 @@ type Twigo struct {
 	Home   string
 	Conf   *Configuration
 	Router *mux.Router
+}
+
+type Action interface {
+	SetContext(*Context)
+	Execute(w http.ResponseWriter, r *http.Request)
 }

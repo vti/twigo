@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -27,23 +26,6 @@ func detectHome() string {
 	return dir
 }
 
-func loadConfiguration(path string) *app.Configuration {
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	decoder := json.NewDecoder(file)
-	configuration := app.Configuration{}
-	err = decoder.Decode(&configuration)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return &configuration
-}
-
 func main() {
 	usage := `twigo.
 
@@ -61,7 +43,7 @@ Options:
 		log.Fatal("error parsing command-line options:", err)
 	}
 
-	conf := loadConfiguration(arguments["--conf"].(string))
+	conf := utils.LoadConfiguration(arguments["--conf"].(string))
 	home := detectHome()
 	router := mux.NewRouter()
 
@@ -100,12 +82,7 @@ Options:
 	http.ListenAndServe(arguments["--listen"].(string), nil)
 }
 
-type Action interface {
-	SetContext(*app.Context)
-	Execute(w http.ResponseWriter, r *http.Request)
-}
-
-func makeHandler(action Action, a *app.Twigo) http.HandlerFunc {
+func makeHandler(action app.Action, a *app.Twigo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		context := app.NewContext(a, r)
 
