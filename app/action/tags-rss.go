@@ -35,7 +35,7 @@ func (action *ListArticlesByTagRss) Execute(w http.ResponseWriter, r *http.Reque
 	conf := action.Context.App.Conf
 	feed := &feeds.Feed{
 		Title:       conf.Title,
-		Link:        &feeds.Link{Href: utils.BuildUrl(router, "Index")},
+		Link:        &feeds.Link{Href: conf.BaseUrl + utils.BuildUrl(router, "Index")},
 		Description: conf.Description,
 		Author:      &feeds.Author{conf.Author, ""},
 		Created:     pubDate.Time(),
@@ -50,8 +50,8 @@ func (action *ListArticlesByTagRss) Execute(w http.ResponseWriter, r *http.Reque
 		feed.Items = append(feed.Items,
 			&feeds.Item{
 				Title:       document.Meta["Title"],
-				Link:        &feeds.Link{Href: utils.BuildViewArticleUrl(router, document)},
-				Id:          utils.BuildViewArticleUrl(router, document),
+				Link:        &feeds.Link{Href: conf.BaseUrl + utils.BuildViewArticleUrl(router, document)},
+				Id:          conf.BaseUrl + utils.BuildViewArticleUrl(router, document),
 				Description: description,
 				Author:      &feeds.Author{conf.Author, ""},
 				Created:     document.Created.Time(),

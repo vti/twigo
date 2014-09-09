@@ -13,6 +13,7 @@ type Configuration struct {
 	Menu        []map[string]string
 	PageLimit   int
 	Footer      string
+	BaseUrl     string
 }
 
 type Twigo struct {
