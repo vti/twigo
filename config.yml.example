@@ -1,0 +1,20 @@
+---
+author: "vti"
+about: "a non-religious developer"
+title: "No time to wait"
+description: "Just code"
+menu:
+    - title: "index"
+      link: "/"
+    - title: "tags"
+      link: "/tags.html"
+    - title: "archive"
+      link: "/archive.html"
+    - title: "about"
+      link: "/pages/about.html"
+base_url: "http://showmetheco.de"
+page_limit: 10
+#urchin: ""
+#disqus:
+#    shortname: "showmetheco-de"
+#    developer: 1

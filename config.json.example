@@ -1,0 +1,26 @@
+{
+   "about" : "a non-religious developer",
+   "author" : "vti",
+   "base_url" : "http://showmetheco.de",
+   "description" : "Just code",
+   "menu" : [
+      {
+         "link" : "/",
+         "title" : "index"
+      },
+      {
+         "link" : "/tags.html",
+         "title" : "tags"
+      },
+      {
+         "link" : "/archive.html",
+         "title" : "archive"
+      },
+      {
+         "link" : "/pages/about.html",
+         "title" : "about"
+      }
+   ],
+   "page_limit" : 10,
+   "title" : "No time to wait"
+}
