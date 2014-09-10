@@ -1,0 +1,6 @@
+APP="twigo"
+ARCH="386"
+OS="linux"
+SERVER="my server"
+SERVICE="supervisord service name"
+DEST="/path/to/server/root/"
