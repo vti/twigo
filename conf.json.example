@@ -1,6 +1,6 @@
 {
-    "Title":"Yet another Perl hacker",
-    "Author":"me",
-    "Description":"HAHAHA",
-    "About":"about"
+    "title":"Yet another Perl hacker",
+    "author":"me",
+    "description":"HAHAHA",
+    "about":"about"
 }

@@ -7,15 +7,15 @@ import (
 )
 
 type Configuration struct {
-	Title       string
-	Author      string
-	Generator   string
-	Description string
-	About       string
-	Menu        []map[string]string
-	PageLimit   int
-	Footer      string
-	BaseUrl     string
+    Title       string              `json:"title"       yaml:"title"`
+	Author      string              `json:"author"      yaml:"author"`
+	Generator   string              `json:"generator"   yaml:"generator"`
+	Description string              `json:"description" yaml:"description"`
+	About       string              `json:"about"       yaml:"about"`
+    Menu        []map[string]string `json:"menu"        yaml:"menu"`
+    PageLimit   int                 `json:"page_limit"  yaml:"page_limit"`
+    Footer      string              `json:"footer"      yaml:"footer"`
+	BaseUrl     string              `json:"base_url"    yaml:"base_url"`
 }
 
 type Twigo struct {
