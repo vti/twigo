@@ -21,6 +21,7 @@ type Configuration struct {
 	PageLimit   int                 `json:"page_limit"  yaml:"page_limit"`
 	Footer      string              `json:"footer"      yaml:"footer"`
 	BaseUrl     string              `json:"base_url"    yaml:"base_url"`
+	Urchin      string              `json:"urchin"      yaml:"urchin"`
 	Disqus      DisqusType
 }
 
