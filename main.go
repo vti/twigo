@@ -55,7 +55,7 @@ Options:
 	router.Handle("/articles/{year:[0-9]{4}}/{month:0?[1-9]|1[012]}/{title:[A-Za-z0-9-]+}.html",
 		makeHandler(&action.ViewArticle{}, twigo)).
 		Methods("GET").Name("ViewArticle")
-	router.Handle("/pages/{title:[a-z0-9]+}.html",
+	router.Handle("/pages/{title:[a-z0-9-]+}.html",
 		makeHandler(&action.ViewPage{}, twigo)).
 		Methods("GET")
 	router.Handle("/tags.html",
