@@ -3,3 +3,4 @@ articles/*markdown
 *.swp
 pages/*markdown
 utils/deploy.sh.vars
+.vendor/

@@ -1,0 +1,8 @@
+code.google.com/p/go.net #ad01a6fcc8a19d3a4478c836895ffe883bd2ceab
+github.com/docopt/docopt-go #c5dac536301992c0371c6115d998fb62944bfad3
+github.com/gorilla/context #14f550f51af52180c2eefed15e5fd18d63c0a64a
+github.com/gorilla/feeds #2e133eb352fab1ff3569ee169e9a3a94f69c9081
+github.com/gorilla/mux #4b8fbc56f3b2400a7c7ea3dba9b3539787c486b6
+github.com/russross/blackfriday #44a39c16c6b85809f8c2663bdb8ddbced1ffdee8
+github.com/stretchr/objx #cbeaeb16a013161a98496fad62933b1d21786672
+github.com/stretchr/testify/assert #a2e5515d4d8f83969e9617a2efd2dfaef2d36800

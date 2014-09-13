@@ -3,6 +3,14 @@ a rewrite of http://github.com/vti/Twist, a blog engine written in Perl.
 
     git clone https://github.com/vti/twigo
 
-    go build # fix all dependencies :)
+Get `goop` if you don't have it:
 
-    ./twigo serve --conf conf.json --listen :8080
+    go get github.com/nitrous-io/goop
+
+Install dependencies
+
+    goop install
+
+Start twigo
+
+    goop exec ./twigo serve --conf conf.json --listen :8080
