@@ -118,7 +118,7 @@ func makeHandler(action app.Action, a *app.Twigo) http.HandlerFunc {
 					return template.HTML(output.String())
 				},
 				"dateFmt": func(date model.Date) string {
-					const layout = "Mo, 2 Jan 2006"
+					const layout = "Mon, 2 Jan 2006"
 					t := time.Date(int(date["Year"]), time.Month(date["Month"]), int(date["Day"]), 0, 0, 0, 0, time.Local)
 					return t.Format(layout)
 				},
